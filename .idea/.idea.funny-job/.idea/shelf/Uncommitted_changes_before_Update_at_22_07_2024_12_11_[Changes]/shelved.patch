@@ -1,0 +1,225 @@
+Index: Features/UpdateEmployeeHandle.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System.Globalization;\r\nusing funny_job.Common;\r\nusing funny_job.Entity;\r\nusing Newtonsoft.Json;\r\nusing JsonSerializer = System.Text.Json.JsonSerializer;\r\n\r\nnamespace funny_job.Features;\r\n\r\npublic class UpdateEmployeeHandle\r\n{\r\n    public void Handle(string[] args)\r\n    {\r\n        var credentials = args\r\n            .Skip(1)\r\n            .Select(x => x.Split(':')[1]).ToArray();\r\n\r\n        List<Employee> employees = new List<Employee>();\r\n        using (StreamReader reader = new StreamReader(Constains.FILE_PATH))\r\n        {\r\n            var jsonString = reader.ReadToEnd()\r\n                .Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToArray();\r\n            \r\n            foreach (string employeeJsonString in jsonString)\r\n            {\r\n                Employee? employee = JsonSerializer.Deserialize<Employee>(employeeJsonString);\r\n                employees.Add(employee);\r\n            }\r\n            \r\n            var employeeToUpdate = employees\r\n                    .FirstOrDefault(e => e.Id == Guid.Parse(credentials[0])) \r\n                                ?? throw new (\"not found\");\r\n            \r\n            employees.Remove(employeeToUpdate);\r\n            \r\n            employeeToUpdate = Employee.Update(\r\n                employeeToUpdate,\r\n                credentials[1],\r\n                credentials[2],\r\n                decimal.Parse(credentials[3], CultureInfo.InvariantCulture));\r\n            \r\n            employees.Add(employeeToUpdate);\r\n        }\r\n\r\n        using (StreamWriter writer = new StreamWriter(Constains.FILE_PATH, false))\r\n        {\r\n            var jsonEmployee = JsonConvert.SerializeObject(employees, Formatting.Indented);\r\n            writer.Write(jsonEmployee);\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Features/UpdateEmployeeHandle.cs b/Features/UpdateEmployeeHandle.cs
+--- a/Features/UpdateEmployeeHandle.cs	(revision 9bab63a393b99f295ff6f4e655c7c8d7279bc527)
++++ b/Features/UpdateEmployeeHandle.cs	(date 1721639269798)
+@@ -43,7 +43,7 @@
+ 
+         using (StreamWriter writer = new StreamWriter(Constains.FILE_PATH, false))
+         {
+-            var jsonEmployee = JsonConvert.SerializeObject(employees, Formatting.Indented);
++            var jsonEmployee = JsonConvert.SerializeObject(employees);
+             writer.Write(jsonEmployee);
+         }
+     }
+Index: Features/AddEmployeeHandle.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System.Globalization;\r\nusing System.Text.Json;\r\nusing funny_job.Common;\r\nusing funny_job.Entity;\r\nusing JsonSerializer = System.Text.Json.JsonSerializer;\r\n\r\nnamespace funny_job.Features;\r\n\r\npublic class AddEmployeeHandle\r\n{\r\n    public void Handle(string[] args)\r\n    {\r\n        var credentials = args\r\n            .Where(x => x != args[0])\r\n            .Select(x => x.Split(':')[1]).ToArray();\r\n\r\n        var employee = Employee.Create(\r\n            Guid.NewGuid(),\r\n            credentials[0],\r\n            credentials[1],\r\n            decimal.Parse(credentials[2], CultureInfo.InvariantCulture));\r\n        \r\n        using(StreamWriter writer = new StreamWriter(Constains.FILE_PATH, true))\r\n        {\r\n            //var options = new JsonSerializerOptions { WriteIndented = true };\r\n            var jsonEmployee = JsonSerializer.Serialize(employee);\r\n            writer.WriteLine(jsonEmployee);\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Features/AddEmployeeHandle.cs b/Features/AddEmployeeHandle.cs
+--- a/Features/AddEmployeeHandle.cs	(revision 9bab63a393b99f295ff6f4e655c7c8d7279bc527)
++++ b/Features/AddEmployeeHandle.cs	(date 1721639360725)
+@@ -1,5 +1,4 @@
+ using System.Globalization;
+-using System.Text.Json;
+ using funny_job.Common;
+ using funny_job.Entity;
+ using JsonSerializer = System.Text.Json.JsonSerializer;
+@@ -22,7 +21,6 @@
+         
+         using(StreamWriter writer = new StreamWriter(Constains.FILE_PATH, true))
+         {
+-            //var options = new JsonSerializerOptions { WriteIndented = true };
+             var jsonEmployee = JsonSerializer.Serialize(employee);
+             writer.WriteLine(jsonEmployee);
+         }
+Index: Features/GetAllEmployeeHandle.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using funny_job.Common;\r\nusing funny_job.Entity;\r\nusing JsonSerializer = System.Text.Json.JsonSerializer;\r\n\r\nnamespace funny_job.Features;\r\n\r\npublic class GetAllEmployeeHandle\r\n{\r\n    public void Handle(string[] args)\r\n    {\r\n        List<Employee> employees = new List<Employee>();\r\n        using (StreamReader reader = new StreamReader(Constains.FILE_PATH))\r\n        {\r\n            string[] jsonString = reader.ReadToEnd()\r\n                .Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToArray();\r\n            \r\n            foreach (string employeeJsonString in jsonString)\r\n            {\r\n                Employee? employee = JsonSerializer.Deserialize<Employee>(employeeJsonString);\r\n                employees.Add(employee);\r\n            }\r\n\r\n            foreach (var employee in employees)\r\n            {\r\n                Console.WriteLine(\r\n                    $\"Id: {\r\n                        employee.Id\r\n                    }, FirstName: {\r\n                        employee.FirstName\r\n                    }, LastName: {\r\n                        employee.LastName\r\n                    }, Salary: {\r\n                        employee.SalaryPerHour}\");\r\n            }\r\n        }\r\n    }\r\n}\r\n            /*employees = reader.ReadToEnd()\r\n                .Split(new[] { Environment.NewLine }, StringSplitOptions.None)\r\n                .Select(line => JsonConvert.DeserializeObject<Employee>(line)).ToList();*/\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Features/GetAllEmployeeHandle.cs b/Features/GetAllEmployeeHandle.cs
+--- a/Features/GetAllEmployeeHandle.cs	(revision 9bab63a393b99f295ff6f4e655c7c8d7279bc527)
++++ b/Features/GetAllEmployeeHandle.cs	(date 1721638622297)
+@@ -34,7 +34,4 @@
+             }
+         }
+     }
+-}
+-            /*employees = reader.ReadToEnd()
+-                .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+-                .Select(line => JsonConvert.DeserializeObject<Employee>(line)).ToList();*/
++}
+\ No newline at end of file
+Index: .idea/.idea.funny-job/.idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoGeneratedRunConfigurationManager\">\r\n    <projectFile>funny-job.csproj</projectFile>\r\n  </component>\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"bb3f04cb-9507-4fcd-b41b-15254c6e9f97\" name=\"Changes\" comment=\"update\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/.idea.funny-job/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/.idea.funny-job/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/DB.txt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/DB.txt\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Entity/Employee.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Entity/Employee.cs\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Features/AddEmployeeHandle.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Features/AddEmployeeHandle.cs\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Features/DeleteEmployeeHandle.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Features/DeleteEmployeeHandle.cs\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Features/GetAllEmployeeHandle.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Features/GetAllEmployeeHandle.cs\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Features/GetEmployeeHandle.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Features/GetEmployeeHandle.cs\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"DpaMonitoringSettings\">\r\n    <option name=\"autoShow\" value=\"false\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\"><![CDATA[{\r\n  \"lastFilter\": {\r\n    \"state\": \"OPEN\",\r\n    \"assignee\": \"arslandag\"\r\n  }\r\n}]]></component>\r\n  <component name=\"GithubPullRequestsUISettings\"><![CDATA[{\r\n  \"selectedUrlAndAccountId\": {\r\n    \"url\": \"https://github.com/arslandag/funny-job\",\r\n    \"accountId\": \"e7aaa839-4ef0-4021-a77a-816aa8beeb7c\"\r\n  }\r\n}]]></component>\r\n  <component name=\"HighlightingSettingsPerFile\">\r\n    <setting file=\"mock:///Dummy.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"mock:///Dummy.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"mock:///Dummy.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/Guid.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/Document/JsonDocument.Parse.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/Serialization/JsonConverterOfT.ReadCore.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/Serialization/JsonSerializer.Read.String.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/ThrowHelper.Serialization.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/29ea32a76b2a6b8eb246f247df6a6a86d887384b4c31db2a35effccdd86c24/JsonSerializerInternalReader.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"mock://D:/proectvisual/funny-job/Features/AddEmployeeHandle.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$PROJECT_DIR$/Program.cs\" root0=\"FORCE_HIGHLIGHTING\" />\r\n  </component>\r\n  <component name=\"MetaFilesCheckinStateConfiguration\" checkMetaFiles=\"true\" />\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 1\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2jTjkQwu7TjWGGtquaw7dHPDQB9\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"autoscrollToSource\" value=\"true\" />\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \".NET Project.funny-job.executor\": \"Run\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"git-widget-placeholder\": \"master\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"settings.editor.selected.configurable\": \"preferences.keymap\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  },\r\n  \"keyToStringList\": {\r\n    \"rider.external.source.directories\": [\r\n      \"C:\\\\Users\\\\arslan\\\\AppData\\\\Roaming\\\\JetBrains\\\\Rider2024.1\\\\resharper-host\\\\DecompilerCache\",\r\n      \"C:\\\\Users\\\\arslan\\\\AppData\\\\Roaming\\\\JetBrains\\\\Rider2024.1\\\\resharper-host\\\\SourcesCache\",\r\n      \"C:\\\\Users\\\\arslan\\\\AppData\\\\Local\\\\Symbols\\\\src\"\r\n    ]\r\n  }\r\n}]]></component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"funny-job\" type=\"DotNetProject\" factoryName=\".NET Project\">\r\n      <option name=\"EXE_PATH\" value=\"\" />\r\n      <option name=\"PROGRAM_PARAMETERS\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"PASS_PARENT_ENVS\" value=\"1\" />\r\n      <option name=\"USE_EXTERNAL_CONSOLE\" value=\"0\" />\r\n      <option name=\"USE_MONO\" value=\"0\" />\r\n      <option name=\"RUNTIME_ARGUMENTS\" value=\"\" />\r\n      <option name=\"PROJECT_PATH\" value=\"$PROJECT_DIR$/funny-job.csproj\" />\r\n      <option name=\"PROJECT_EXE_PATH_TRACKING\" value=\"1\" />\r\n      <option name=\"PROJECT_ARGUMENTS_TRACKING\" value=\"1\" />\r\n      <option name=\"PROJECT_WORKING_DIRECTORY_TRACKING\" value=\"1\" />\r\n      <option name=\"PROJECT_KIND\" value=\"DotNetCore\" />\r\n      <option name=\"PROJECT_TFM\" value=\"\" />\r\n      <method v=\"2\">\r\n        <option name=\"Build\" />\r\n      </method>\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"bb3f04cb-9507-4fcd-b41b-15254c6e9f97\" name=\"Changes\" comment=\"\" />\r\n      <created>1721418103392</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1721418103392</updated>\r\n      <workItem from=\"1721419016924\" duration=\"47216000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"start\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1721570927587</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1721570927587</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"#\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1721570976206</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1721570976206</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"update\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1721571163096</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1721571163096</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"4\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"UnityCheckinConfiguration\" checkUnsavedScenes=\"true\" />\r\n  <component name=\"UnityProjectConfiguration\" hasMinimizedUI=\"false\" />\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"CLEAR_INITIAL_COMMIT_MESSAGE\" value=\"true\" />\r\n    <MESSAGE value=\"start\" />\r\n    <MESSAGE value=\"#\" />\r\n    <MESSAGE value=\"update\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"update\" />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Features/GetEmployeeHandle.cs</url>\r\n          <line>26</line>\r\n          <properties documentPath=\"D:\\proectvisual\\funny-job\\Features\\GetEmployeeHandle.cs\" containingFunctionPresentation=\"Method 'Handle'\">\r\n            <startOffsets>\r\n              <option value=\"836\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"866\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"83\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Features/GetEmployeeHandle.cs</url>\r\n          <line>30</line>\r\n          <properties documentPath=\"D:\\proectvisual\\funny-job\\Features\\GetEmployeeHandle.cs\" containingFunctionPresentation=\"Method 'Handle'\">\r\n            <startOffsets>\r\n              <option value=\"1008\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"1318\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"84\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs</url>\r\n          <line>18</line>\r\n          <properties documentPath=\"D:\\proectvisual\\funny-job\\Features\\UpdateEmployeeHandle.cs\" containingFunctionPresentation=\"Method 'Handle'\">\r\n            <startOffsets>\r\n              <option value=\"514\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"515\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"85\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n    <pin-to-top-manager>\r\n      <pinned-members>\r\n        <PinnedItemInfo parentTag=\"Frame#funny_job.Features.AddEmployee.Handle\" memberName=\"employee\" />\r\n      </pinned-members>\r\n    </pin-to-top-manager>\r\n    <watches-manager>\r\n      <configuration name=\"DotNetProject\">\r\n        <watch expression=\"new System.Collections.Generic.ICollectionDebugView&lt;funny_job.Entity.Employee&gt;(employees).Items[0].Id\" language=\"C#\" />\r\n      </configuration>\r\n    </watches-manager>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.idea.funny-job/.idea/workspace.xml b/.idea/.idea.funny-job/.idea/workspace.xml
+--- a/.idea/.idea.funny-job/.idea/workspace.xml	(revision 9bab63a393b99f295ff6f4e655c7c8d7279bc527)
++++ b/.idea/.idea.funny-job/.idea/workspace.xml	(date 1721639150138)
+@@ -7,14 +7,12 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="bb3f04cb-9507-4fcd-b41b-15254c6e9f97" name="Changes" comment="update">
++    <list default="true" id="bb3f04cb-9507-4fcd-b41b-15254c6e9f97" name="Changes" comment="">
+       <change beforePath="$PROJECT_DIR$/.idea/.idea.funny-job/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.funny-job/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/DB.txt" beforeDir="false" afterPath="$PROJECT_DIR$/DB.txt" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Entity/Employee.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Entity/Employee.cs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Features/AddEmployeeHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/AddEmployeeHandle.cs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Features/DeleteEmployeeHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/DeleteEmployeeHandle.cs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Features/GetAllEmployeeHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/GetAllEmployeeHandle.cs" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Features/GetEmployeeHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/GetEmployeeHandle.cs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -28,23 +26,20 @@
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+-  "lastFilter": {
+-    "state": "OPEN",
+-    "assignee": "arslandag"
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;arslandag&quot;
+   }
+-}]]></component>
+-  <component name="GithubPullRequestsUISettings"><![CDATA[{
+-  "selectedUrlAndAccountId": {
+-    "url": "https://github.com/arslandag/funny-job",
+-    "accountId": "e7aaa839-4ef0-4021-a77a-816aa8beeb7c"
++}</component>
++  <component name="GithubPullRequestsUISettings">{
++  &quot;selectedUrlAndAccountId&quot;: {
++    &quot;url&quot;: &quot;https://github.com/arslandag/funny-job&quot;,
++    &quot;accountId&quot;: &quot;e7aaa839-4ef0-4021-a77a-816aa8beeb7c&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="HighlightingSettingsPerFile">
+-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/Guid.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/Guid.cs" root0="FORCE_HIGHLIGHTING" />
+     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/Document/JsonDocument.Parse.cs" root0="SKIP_HIGHLIGHTING" />
+@@ -52,7 +47,6 @@
+     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/Serialization/JsonSerializer.Read.String.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/1381d5ebd2ab1f292848d5b19b80cf71ac332508/src/libraries/System.Text.Json/src/System/Text/Json/ThrowHelper.Serialization.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/29ea32a76b2a6b8eb246f247df6a6a86d887384b4c31db2a35effccdd86c24/JsonSerializerInternalReader.cs" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="mock://D:/proectvisual/funny-job/Features/AddEmployeeHandle.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
+   </component>
+   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+@@ -70,7 +64,7 @@
+   </component>
+   <component name="PropertiesComponent"><![CDATA[{
+   "keyToString": {
+-    ".NET Project.funny-job.executor": "Run",
++    ".NET Project.funny-job.executor": "Debug",
+     "RunOnceActivity.ShowReadmeOnStart": "true",
+     "git-widget-placeholder": "master",
+     "node.js.detected.package.eslint": "true",
+@@ -117,7 +111,9 @@
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+       <updated>1721418103392</updated>
+-      <workItem from="1721419016924" duration="47216000" />
++      <workItem from="1721419016924" duration="47437000" />
++      <workItem from="1721638356939" duration="138000" />
++      <workItem from="1721638518976" duration="623000" />
+     </task>
+     <task id="LOCAL-00001" summary="start">
+       <option name="closed" value="true" />
+@@ -143,7 +139,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1721571163096</updated>
+     </task>
+-    <option name="localTasksCounter" value="4" />
++    <task id="LOCAL-00004" summary="#">
++      <option name="closed" value="true" />
++      <created>1721638254785</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1721638254785</updated>
++    </task>
++    <option name="localTasksCounter" value="5" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -154,48 +158,22 @@
+   <component name="VcsManagerConfiguration">
+     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+     <MESSAGE value="start" />
+-    <MESSAGE value="#" />
+     <MESSAGE value="update" />
+-    <option name="LAST_COMMIT_MESSAGE" value="update" />
++    <MESSAGE value="#" />
++    <option name="LAST_COMMIT_MESSAGE" value="#" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+       <breakpoints>
+         <line-breakpoint enabled="true" type="DotNet Breakpoints">
+-          <url>file://$PROJECT_DIR$/Features/GetEmployeeHandle.cs</url>
+-          <line>26</line>
+-          <properties documentPath="D:\proectvisual\funny-job\Features\GetEmployeeHandle.cs" containingFunctionPresentation="Method 'Handle'">
++          <url>file://$PROJECT_DIR$/Features/DeleteEmployeeHandle.cs</url>
++          <line>36</line>
++          <properties documentPath="D:\proectvisual\funny-job\Features\DeleteEmployeeHandle.cs" containingFunctionPresentation="Method 'Handle'">
+             <startOffsets>
+-              <option value="836" />
++              <option value="1229" />
+             </startOffsets>
+             <endOffsets>
+-              <option value="866" />
+-            </endOffsets>
+-          </properties>
+-          <option name="timeStamp" value="83" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+-          <url>file://$PROJECT_DIR$/Features/GetEmployeeHandle.cs</url>
+-          <line>30</line>
+-          <properties documentPath="D:\proectvisual\funny-job\Features\GetEmployeeHandle.cs" containingFunctionPresentation="Method 'Handle'">
+-            <startOffsets>
+-              <option value="1008" />
+-            </startOffsets>
+-            <endOffsets>
+-              <option value="1318" />
+-            </endOffsets>
+-          </properties>
+-          <option name="timeStamp" value="84" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+-          <url>file://$PROJECT_DIR$/Features/UpdateEmployeeHandle.cs</url>
+-          <line>18</line>
+-          <properties documentPath="D:\proectvisual\funny-job\Features\UpdateEmployeeHandle.cs" containingFunctionPresentation="Method 'Handle'">
+-            <startOffsets>
+-              <option value="514" />
+-            </startOffsets>
+-            <endOffsets>
+-              <option value="515" />
++              <option value="1260" />
+             </endOffsets>
+           </properties>
+           <option name="timeStamp" value="85" />

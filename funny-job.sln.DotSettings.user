@@ -1,0 +1,17 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=47908141_002De25e_002D4eea_002D85de_002D29b2323498e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from AddEmployee.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFile&gt;E7E8B83E-1BC2-434C-A2B6-DC925F6D112F/f:AddEmployee.cs&lt;/ProjectFile&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6a7216f6_002D47f5_002D4790_002Dbf7c_002D0a7843f397f5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from AddTest.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFile&gt;266E2B87-705E-4B91-AA0E-1C40F558D795/f:AddTest.cs&lt;/ProjectFile&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8485034b_002D99d9_002D42c4_002Db817_002Dbf9fe895436e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AddEmployee_with_work_method" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::266E2B87-705E-4B91-AA0E-1C40F558D795::net8.0::UnitTest.AddTest.AddEmployee_with_work_method&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ff8941dc_002D8f3c_002D4cfd_002Da098_002Dc8aa47f05c73/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AddTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::266E2B87-705E-4B91-AA0E-1C40F558D795::net8.0::UnitTest.AddTest&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

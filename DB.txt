@@ -1,0 +1,3 @@
+{"Id":"548193de-5906-470b-bd4c-e5e44d09d94c","FirstName":"Arslan","LastName":"Amai","SalaryPerHour":100.50}
+{"Id":"c930dbf9-4a39-41a5-b874-64f7278d6ee9","FirstName":"Arslan","LastName":"Amai","SalaryPerHour":100.50}
+{"Id":"9b854bc8-230a-4d88-a810-9df0a8f8a70d","FirstName":"Arslan","LastName":"Amai","SalaryPerHour":100.50}
